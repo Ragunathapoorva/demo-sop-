@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Based Adversarial Attack Detection & Mitigation - IoT Networks</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content login-form">
+            <div class="login-header">
+                <h2><i class="fas fa-shield-alt"></i> IoT Security Platform</h2>
+                <p>AI-Based Adversarial Attack Detection & Mitigation</p>
+            </div>
+            <form id="loginForm" class="form-group">
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" id="username" class="form-control" placeholder="Enter username" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" id="password" class="form-control" placeholder="Enter password" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Role</label>
+                    <select id="userRole" class="form-control">
+                        <option value="admin">Administrator</option>
+                        <option value="analyst">Security Analyst</option>
+                        <option value="researcher">Researcher</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn--primary btn--full-width">
+                    <i class="fas fa-sign-in-alt"></i> Sign In
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="app" class="app hidden">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <h1><i class="fas fa-shield-alt"></i> IoT Security Platform</h1>
+                <div class="threat-indicator">
+                    <span class="threat-level" id="currentThreatLevel">LOW</span>
+                    <div class="threat-pulse"></div>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="user-info">
+                    <span id="currentUser">Admin User</span>
+                    <span id="currentRole" class="user-role">Administrator</span>
+                </div>
+                <button class="btn btn--outline btn--sm" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="sidebar">
+            <ul class="nav-menu">
+                <li class="nav-item active" data-view="dashboard">
+                    <i class="fas fa-tachometer-alt"></i> Overview
+                </li>
+                <li class="nav-item" data-view="network">
+                    <i class="fas fa-project-diagram"></i> 3D Network
+                </li>
+                <li class="nav-item" data-view="detection">
+                    <i class="fas fa-search"></i> Threat Detection
+                </li>
+                <li class="nav-item" data-view="attacks">
+                    <i class="fas fa-bug"></i> Attack Simulation
+                </li>
+                <li class="nav-item" data-view="mitigation">
+                    <i class="fas fa-shield-virus"></i> Mitigation
+                </li>
+                <li class="nav-item" data-view="models">
+                    <i class="fas fa-brain"></i> AI Models
+                </li>
+                <li class="nav-item" data-view="logs">
+                    <i class="fas fa-list-alt"></i> Attack Logs
+                </li>
+                <li class="nav-item" data-view="settings">
+                    <i class="fas fa-cog"></i> Settings
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard View -->
+            <div id="dashboardView" class="view active">
+                <div class="view-header">
+                    <h2>Network Overview</h2>
+                    <div class="status-indicators">
+                        <div class="status-card">
+                            <i class="fas fa-wifi"></i>
+                            <div>
+                                <span class="status-number" id="activeDevices">0</span>
+                                <span class="status-label">Active Devices</span>
+                            </div>
+                        </div>
+                        <div class="status-card">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <div>
+                                <span class="status-number" id="activeThreats">0</span>
+                                <span class="status-label">Active Threats</span>
+                            </div>
+                        </div>
+                        <div class="status-card">
+                            <i class="fas fa-shield-check"></i>
+                            <div>
+                                <span class="status-number" id="blockedAttacks">0</span>
+                                <span class="status-label">Blocked Attacks</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3>Real-Time Traffic</h3>
+                            <div class="traffic-legend">
+                                <span class="legend-item normal">Normal</span>
+                                <span class="legend-item malicious">Malicious</span>
+                            </div>
+                        </div>
+                        <div class="chart-container" style="position: relative; height: 300px;">
+                            <canvas id="trafficChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3>Device Status</h3>
+                        </div>
+                        <div class="device-list" id="deviceList">
+                            <!-- Device items will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3>Recent Attacks</h3>
+                        </div>
+                        <div class="attack-timeline" id="recentAttacks">
+                            <!-- Attack items will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3>System Health</h3>
+                        </div>
+                        <div class="health-metrics">
+                            <div class="metric">
+                                <span class="metric-label">CPU Usage</span>
+                                <div class="metric-bar">
+                                    <div class="metric-fill" style="width: 45%"></div>
+                                </div>
+                                <span class="metric-value">45%</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Memory Usage</span>
+                                <div class="metric-bar">
+                                    <div class="metric-fill" style="width: 62%"></div>
+                                </div>
+                                <span class="metric-value">62%</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Network Load</span>
+                                <div class="metric-bar">
+                                    <div class="metric-fill" style="width: 38%"></div>
+                                </div>
+                                <span class="metric-value">38%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3D Network View -->
+            <div id="networkView" class="view">
+                <div class="view-header">
+                    <h2>3D Network Topology</h2>
+                    <div class="network-controls">
+                        <button class="btn btn--sm btn--outline" id="resetView">
+                            <i class="fas fa-sync"></i> Reset View
+                        </button>
+                        <button class="btn btn--sm btn--outline" id="toggleAnimation">
+                            <i class="fas fa-play"></i> Toggle Animation
+                        </button>
+                    </div>
+                </div>
+                <div class="network-container">
+                    <div id="network3D" class="network-canvas"></div>
+                    <div class="network-legend">
+                        <div class="legend-item">
+                            <div class="legend-color safe"></div>
+                            <span>Safe</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color suspicious"></div>
+                            <span>Suspicious</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color compromised"></div>
+                            <span>Compromised</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Threat Detection View -->
+            <div id="detectionView" class="view">
+                <div class="view-header">
+                    <h2>AI Threat Detection</h2>
+                    <div class="detection-status">
+                        <span class="status status--success">Models Active</span>
+                        <span class="detection-rate">Detection Rate: <strong>98.5%</strong></span>
+                    </div>
+                </div>
+                <div class="detection-grid">
+                    <div class="detection-card">
+                        <h3>Real-Time Detection Feed</h3>
+                        <div class="detection-feed" id="detectionFeed">
+                            <!-- Detection items will be populated by JavaScript -->
+                        </div>
+                    </div>
+                    <div class="detection-card">
+                        <h3>Model Performance</h3>
+                        <div class="chart-container" style="position: relative; height: 250px;">
+                            <canvas id="performanceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attack Simulation View -->
+            <div id="attacksView" class="view">
+                <div class="view-header">
+                    <h2>Attack Simulation</h2>
+                    <div class="simulation-status">
+                        <span id="simulationStatus" class="status status--info">Simulation Ready</span>
+                    </div>
+                </div>
+                <div class="attack-simulation-panel">
+                    <div class="simulation-controls">
+                        <div class="form-group">
+                            <label class="form-label">Attack Type</label>
+                            <select id="attackType" class="form-control">
+                                <option value="">Select Attack Type</option>
+                                <option value="FGSM">FGSM - Fast Gradient Sign Method</option>
+                                <option value="PGD">PGD - Projected Gradient Descent</option>
+                                <option value="DDoS">DDoS - Distributed Denial of Service</option>
+                                <option value="Spoofing">Identity Spoofing Attack</option>
+                                <option value="Injection">Packet Injection Attack</option>
+                                <option value="Poisoning">Data Poisoning Attack</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Target Device</label>
+                            <select id="targetDevice" class="form-control">
+                                <option value="">All Devices</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Intensity</label>
+                            <input type="range" id="attackIntensity" class="form-control" min="1" max="10" value="5">
+                            <span id="intensityValue">5</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Duration (seconds)</label>
+                            <input type="number" id="attackDuration" class="form-control" value="30" min="5" max="300">
+                        </div>
+                        <div class="form-actions">
+                            <button id="startAttack" class="btn btn--primary">
+                                <i class="fas fa-play"></i> Start Attack
+                            </button>
+                            <button id="stopAttack" class="btn btn--outline" disabled>
+                                <i class="fas fa-stop"></i> Stop Attack
+                            </button>
+                        </div>
+                    </div>
+                    <div class="attack-progress">
+                        <h3>Attack Progress</h3>
+                        <div id="attackProgress" class="progress-display">
+                            <p>No active attack simulation</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mitigation View -->
+            <div id="mitigationView" class="view">
+                <div class="view-header">
+                    <h2>Mitigation & Response</h2>
+                    <div class="mitigation-stats">
+                        <span class="stat">Active Rules: <strong id="activeRules">0</strong></span>
+                        <span class="stat">Blocked IPs: <strong id="blockedIPs">0</strong></span>
+                    </div>
+                </div>
+                <div class="mitigation-grid">
+                    <div class="mitigation-card">
+                        <h3>Active Mitigation Rules</h3>
+                        <div class="rules-list" id="mitigationRules">
+                            <!-- Rules will be populated by JavaScript -->
+                        </div>
+                    </div>
+                    <div class="mitigation-card">
+                        <h3>Blocked Entities</h3>
+                        <div class="blocked-list" id="blockedEntities">
+                            <!-- Blocked entities will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Models View -->
+            <div id="modelsView" class="view">
+                <div class="view-header">
+                    <h2>AI/ML Models</h2>
+                    <button class="btn btn--primary btn--sm">
+                        <i class="fas fa-sync"></i> Retrain Models
+                    </button>
+                </div>
+                <div class="models-grid">
+                    <div class="model-card" data-model="cnn-lstm">
+                        <div class="model-header">
+                            <h3>CNN-LSTM Hybrid</h3>
+                            <span class="status status--success">Active</span>
+                        </div>
+                        <div class="model-metrics">
+                            <div class="metric">
+                                <span class="metric-label">Accuracy</span>
+                                <span class="metric-value">98.5%</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Precision</span>
+                                <span class="metric-value">97.8%</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Recall</span>
+                                <span class="metric-value">98.1%</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">F1-Score</span>
+                                <span class="metric-value">97.9%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="model-card" data-model="random-forest">
+                        <div class="model-header">
+                            <h3>Random Forest</h3>
+                            <span class="status status--success">Active</span>
+                        </div>
+                        <div class="model-metrics">
+                            <div class="metric">
+                                <span class="metric-label">Accuracy</span>
+                                <span class="metric-value">95.2%</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Precision</span>
+                                <span class="metric-value">94.8%</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Recall</span>
+                                <span class="metric-value">95.5%</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">F1-Score</span>
+                                <span class="metric-value">95.1%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="model-card" data-model="xgboost">
+                        <div class="model-header">
+                            <h3>XGBoost</h3>
+                            <span class="status status--success">Active</span>
+                        </div>
+                        <div class="model-metrics">
+                            <div class="metric">
+                                <span class="metric-label">Accuracy</span>
+                                <span class="metric-value">96.8%</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Precision</span>
+                                <span class="metric-value">96.2%</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Recall</span>
+                                <span class="metric-value">97.1%</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">F1-Score</span>
+                                <span class="metric-value">96.6%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Logs View -->
+            <div id="logsView" class="view">
+                <div class="view-header">
+                    <h2>Attack Logs</h2>
+                    <div class="log-filters">
+                        <select class="form-control" id="logFilter">
+                            <option value="all">All Events</option>
+                            <option value="attacks">Attacks Only</option>
+                            <option value="detections">Detections Only</option>
+                            <option value="mitigations">Mitigations Only</option>
+                        </select>
+                        <button class="btn btn--outline btn--sm">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                    </div>
+                </div>
+                <div class="logs-container">
+                    <table class="logs-table">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Type</th>
+                                <th>Source</th>
+                                <th>Target</th>
+                                <th>Severity</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logsTableBody">
+                            <!-- Log entries will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Settings View -->
+            <div id="settingsView" class="view">
+                <div class="view-header">
+                    <h2>System Configuration</h2>
+                </div>
+                <div class="settings-grid">
+                    <div class="settings-card">
+                        <h3>Alert Thresholds</h3>
+                        <div class="form-group">
+                            <label class="form-label">Threat Detection Sensitivity</label>
+                            <input type="range" class="form-control" min="1" max="10" value="7">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Auto-Mitigation</label>
+                            <select class="form-control">
+                                <option value="enabled">Enabled</option>
+                                <option value="disabled">Disabled</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="settings-card">
+                        <h3>Model Configuration</h3>
+                        <div class="form-group">
+                            <label class="form-label">Retraining Frequency</label>
+                            <select class="form-control">
+                                <option value="daily">Daily</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="monthly">Monthly</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Model Ensemble</label>
+                            <select class="form-control">
+                                <option value="all">Use All Models</option>
+                                <option value="best">Best Performing</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
