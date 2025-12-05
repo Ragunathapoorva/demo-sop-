@@ -1,7 +1,7 @@
 # IoT Security Platform — AI-Based Adversarial Attack Detection & Mitigation
 
 **Live demo:** https://ragunathapoorva.github.io/demo-sop-/  
-**Repo:** `https://github.com/ragunathapoorva/demo-sop-` _(update repo URL if different)_
+**Repo:** `https://github.com/ragunathapoorva/demo-sop-/
 
 ---
 
@@ -47,5 +47,6 @@ cd demo-sop-
 # Python 3
 python -m http.server 8000
 # then open http://localhost:8000 in your browser
+
 
 
